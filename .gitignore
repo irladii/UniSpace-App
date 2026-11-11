@@ -1,0 +1,64 @@
+# 1. Package Dependencies
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+
+# 2. Environment Variables & Credentials
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# 3. Application Runtime State & Cache
+unispace_license.json
+rclone_vfs_cache/
+
+# 4. Diagnostics & Logs
+*.log
+electron_debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 5. Build, Package & Installer Distribution
+dist/
+out/
+build/
+*.app/
+*.dmg
+*.zip
+*.tar.gz
+
+# 6. Assistant & Agent Workspaces
+.agents/
+skills-lock.json
+
+# 7. Operating System Artifacts
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# 8. Editor & IDE Settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

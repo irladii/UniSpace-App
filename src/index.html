@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.paypal.com https://*.paypal.com https://*.paypalobjects.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.paypal.com https://*.paypalobjects.com; connect-src 'self' https://*.paypal.com https://*.sandbox.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypal.com https://*.sandbox.paypal.com https://*.paypalobjects.com;">
+  <title>UniSpace</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- app header -->
+    <header class="app-header">
+      <div class="brand-group">
+        <img src="assets/unispace-logo.jpg" alt="UniSpace Logo" class="brand-logo-img">
+        <div class="brand-title">
+          <h1>UniSpace</h1>
+          <span class="brand-tag">Cross-Cloud Storage</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- quota meter -->
+        <div class="quota-pill" id="quota-pill">
+          <div class="quota-progress-track">
+            <span class="quota-bar" id="quota-bar"></span>
+          </div>
+          <span class="quota-label" id="search-quota-label">Free AI Searches: 0/5</span>
+        </div>
+
+        <button id="btn-pro-toggle" class="btn-secondary" onclick="handleProHeaderClick()">
+          Upgrade for $20
+        </button>
+
+        <button id="btn-activate-key" class="btn-activate-link" onclick="openActivateModal()" title="Already have a license? Activate here">
+          Activate Key
+        </button>
+      </div>
+    </header>
+
+    <!-- main content -->
+    <main class="app-content">
+
+      <!-- storage mounts -->
+      <section class="panel-section">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Cloud Storage Mounts</h2>
+            <span class="panel-caption">Mount cloud drives directly into Windows File Explorer</span>
+          </div>
+        </div>
+
+        <div class="drives-grid">
+          
+          <!-- gdrive card -->
+          <div class="drive-tile" id="card-gdrive">
+            <div class="drive-tile-top">
+              <div class="provider-info">
+                <div class="provider-icon gdrive">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5M9.73 15L6.3 21h13.12l3.43-6m-8.31-9.5l6.55 11.5h-6.86L7.4 5.5"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="provider-name-row">
+                    <h3>Google Drive</h3>
+                    <kbd class="keycap">G:</kbd>
+                  </div>
+                  <span class="provider-remote">Virtual Drive Letter</span>
+                </div>
+              </div>
+
+              <div class="status-indicator-box">
+                <span class="status-dot" id="dot-gdrive"></span>
+                <span class="status-text" id="label-gdrive">Unmounted</span>
+              </div>
+            </div>
+
+            <div class="drive-tile-bottom">
+              <button class="btn-mount" id="btn-toggle-gdrive" onclick="handleDriveToggle('gdrive')">
+                Mount Drive
+              </button>
+              <button class="btn-open-explorer hidden" id="btn-open-gdrive" onclick="handleOpenDrive('gdrive')" disabled>
+                Warming Cache...
+              </button>
+            </div>
+          </div>
+
+          <!-- onedrive card -->
+          <div class="drive-tile" id="card-onedrive">
+            <div class="drive-tile-top">
+              <div class="provider-info">
+                <div class="provider-icon onedrive">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="provider-name-row">
+                    <h3>Microsoft OneDrive</h3>
+                    <kbd class="keycap">O:</kbd>
+                  </div>
+                  <span class="provider-remote">Virtual Drive Letter</span>
+                </div>
+              </div>
+
+              <div class="status-indicator-box">
+                <span class="status-dot" id="dot-onedrive"></span>
+                <span class="status-text" id="label-onedrive">Unmounted</span>
+              </div>
+            </div>
+
+            <div class="drive-tile-bottom">
+              <button class="btn-mount" id="btn-toggle-onedrive" onclick="handleDriveToggle('onedrive')">
+                Mount Drive
+              </button> 
+              <button class="btn-open-explorer hidden" id="btn-open-onedrive" onclick="handleOpenDrive('onedrive')" disabled>
+                Warming Cache...
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- file search -->
+      <section class="panel-section">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>File Search</h2>
+            <span class="panel-caption">Find files across all mounted drives</span>
+          </div>
+        </div>
+
+        <div class="search-module">
+          <div class="search-input-group">
+            <div class="search-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              id="search-input" 
+              placeholder="Search across drives (e.g. 'AWS hosting invoices from last quarter')..." 
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <kbd class="input-shortcut">Enter</kbd>
+          </div>
+          <button id="btn-search" class="btn-primary" onclick="handleSearchSubmit()">
+            Search
+          </button>
+        </div>
+
+        <!-- lockout banner -->
+        <div id="lockout-banner" class="lockout-card hidden">
+          <div class="lockout-meta">
+            <div class="lockout-title">Search Limit Reached</div>
+            <p>Tired of manual searches? Upgrade for a $20 Lifetime License.</p>
+          </div>
+          <button class="btn-primary" onclick="triggerPaywallModal()">
+            Upgrade for $20 Lifetime License
+          </button>
+        </div>
+
+        <!-- loading state -->
+        <div id="search-loading" class="search-loading hidden">
+          <span class="spinner"></span>
+          <span class="loading-text">AI is scanning your drives&hellip;</span>
+        </div>
+
+        <!-- result card -->
+        <div id="search-result" class="search-result-card hidden">
+          <div class="result-header">
+            <span class="result-filename" id="result-filename">—</span>
+            <span class="result-cloud-badge" id="result-cloud-badge">Google Drive</span>
+          </div>
+          <div class="result-footer">
+            <button class="btn-reveal" id="btn-reveal" onclick="revealFile()">Reveal in File Explorer</button>
+          </div>
+        </div>
+
+        <!-- no match state -->
+        <div id="search-no-match" class="search-no-match hidden">
+          <span class="no-match-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="8" x2="14" y2="14"></line></svg>
+          </span>
+          <span id="no-match-text">No matching file found.</span>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- footer -->
+    <footer class="app-footer">
+      <div class="telemetry-actions">
+        <button class="btn-telemetry" onclick="handleReset()">Reset Quota (0/5)</button>
+      </div>
+    </footer>
+
+    <!-- paywall modal -->
+    <div id="paypal-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="paypal-modal-title">
+      <div class="modal-card">
+        <button class="modal-close" onclick="closePaypalModal()" aria-label="Close modal">&times;</button>
+        <div class="modal-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span>Lifetime License</span>
+        </div>
+        <h2 id="paypal-modal-title" class="modal-heading">Tired of manual searches? Upgrade for a $20 Lifetime License.</h2>
+        <p class="modal-subheading">
+          Unlock unlimited semantic AI file searches across all mounted Google Drive and OneDrive folders with zero rate limits forever.
+        </p>
+
+        <div class="modal-price-tag">
+          <span class="price-val">$20.00</span>
+          <span class="price-lbl">USD · One-Time Lifetime Payment</span>
+        </div>
+
+        <!-- paypal buttons container -->
+        <div id="paypal-button-container" style="margin-top: 20px;"></div>
+
+        <div class="modal-secondary-link-wrap">
+          <button type="button" class="btn-link-action" onclick="openActivateModalFromPaywall()">
+            Already purchased? Enter License Key / Order ID
+          </button>
+        </div>
+
+        <div class="modal-guarantee">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Secured by PayPal Sandbox &middot; Instant Lifetime Activation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- activate license modal -->
+    <div id="activate-license-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="activate-modal-title">
+      <div class="modal-card">
+        <button class="modal-close" onclick="closeActivateModal()" aria-label="Close modal">&times;</button>
+        <h2 id="activate-modal-title" class="modal-heading">Activate UniSpace License</h2>
+        <p class="modal-subheading">
+          Enter your license key (e.g. <code>UNISPACE-XXXX-XXXX-XXXX</code>) or your PayPal Order ID to restore your Pro access on this machine.
+        </p>
+
+        <div class="activate-input-group">
+          <input 
+            type="text" 
+            id="input-license-key" 
+            class="license-key-input" 
+            placeholder="UNISPACE-XXXX-XXXX-XXXX" 
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="btn-primary" id="btn-submit-license" onclick="submitActivateKey()">
+            Activate
+          </button>
+        </div>
+        <div id="activate-error-msg" class="activate-error-msg hidden"></div>
+
+        <div class="modal-guarantee">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Instant Lifetime Activation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- license details modal -->
+    <div id="license-details-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="details-modal-title">
+      <div class="modal-card">
+        <button class="modal-close" onclick="closeLicenseDetailsModal()" aria-label="Close modal">&times;</button>
+        <div class="modal-badge modal-badge-pro">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span>Pro Active</span>
+        </div>
+        <h2 id="details-modal-title" class="modal-heading">Your UniSpace License</h2>
+        <p class="modal-subheading">Lifetime access active with unlimited semantic AI file search.</p>
+
+        <div class="license-info-card">
+          <div class="license-info-row">
+            <span class="info-label">Plan</span>
+            <span class="info-value font-highlight">Lifetime License ($20 USD)</span>
+          </div>
+          <div class="license-info-row">
+            <span class="info-label">Status</span>
+            <span class="info-badge-active">● Active · Unlimited AI Searches</span>
+          </div>
+          <div class="license-info-row key-row">
+            <span class="info-label">License Key</span>
+            <div class="key-copy-container">
+              <code id="display-license-key" class="license-key-text">UNISPACE-XXXX-XXXX-XXXX</code>
+              <button class="btn-copy-key" id="btn-copy-key" onclick="copyLicenseKey()">Copy Key</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="license-card-actions">
+          <button class="btn-deactivate" onclick="handleDeactivateLicense()">Deactivate on this PC</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- success modal: thermal receipt printer -->
+    <div id="license-success-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="printer-container">
+        <!-- printer machine body -->
+        <div class="printer-machine">
+          <div class="printer-header">
+            <div class="printer-status">
+              <span class="printer-status-led" id="printer-led"></span>
+              <span class="printer-status-text" id="printer-status-text">Printing receipt...</span>
+            </div>
+            <button class="printer-close-btn" onclick="closeSuccessModal()" aria-label="Close modal">&times;</button>
+          </div>
+          <!-- dark recessed paper ejection slot -->
+          <div class="printer-slot-slit"></div>
+        </div>
+
+        <!-- paper output viewport (paper feeds out of slot) -->
+        <div class="printer-paper-viewport">
+          <article class="receipt-paper" id="receipt-paper">
+            <div class="receipt-header">
+              <div class="receipt-logo">★ UNISPACE ★</div>
+              <div class="receipt-subtitle">OFFICIAL PAYMENT RECEIPT</div>
+              <div class="receipt-divider">================================</div>
+            </div>
+
+            <div class="receipt-body">
+              <div class="receipt-row">
+                <span>DATE</span>
+                <span id="receipt-date" class="receipt-mono">2026-11-11</span>
+              </div>
+              <div class="receipt-row" id="row-success-order">
+                <span>ORDER ID</span>
+                <span id="success-order-id" class="receipt-mono">—</span>
+              </div>
+              <div class="receipt-row" id="row-success-email">
+                <span>ACCOUNT</span>
+                <span id="success-payer-email" class="receipt-mono">sandbox-buyer@paypal.com</span>
+              </div>
+              <div class="receipt-row">
+                <span>STATUS</span>
+                <span style="color:#059669; font-weight:700;">PAID / VERIFIED</span>
+              </div>
+
+              <div class="receipt-divider">--------------------------------</div>
+
+              <div class="receipt-item-row">
+                <span>UNISPACE PRO LIFETIME</span>
+                <span>$20.00</span>
+              </div>
+              <div class="receipt-sub-desc">1 DEVICE • UNLIMITED AI SEARCH</div>
+
+              <div class="receipt-divider">--------------------------------</div>
+
+              <div class="receipt-total-row">
+                <span>TOTAL (USD)</span>
+                <span class="receipt-total-amount">$20.00</span>
+              </div>
+
+              <div class="receipt-divider">================================</div>
+
+              <div class="receipt-license-section">
+                <div class="receipt-license-label">YOUR LIFETIME LICENSE KEY</div>
+                <div class="receipt-key-box">
+                  <code id="success-license-key" class="receipt-key">UNISPACE-XXXX-XXXX-XXXX</code>
+                  <button class="receipt-copy-btn" id="btn-copy-success-key" onclick="copySuccessLicenseKey()">COPY</button>
+                </div>
+                <div class="receipt-hint">Auto-activated on this device</div>
+              </div>
+
+              <div class="receipt-barcode">
+                <div class="barcode-lines">|| | |||| | ||| |||| | | |||| ||| | || |||| |</div>
+                <div class="barcode-text">MANY PLACES. ONE SPACE.</div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- action button below the printer -->
+        <div class="printer-actions">
+          <button class="btn-primary btn-full-width" onclick="closeSuccessModalAndResume()">
+            Start Unlimited Searching
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://www.paypal.com/sdk/js?client-id=BAA4iph3HybwzRrgnmX3O0K-wi2VSm7ApDIYSByV0XF7h0TWkMhw38ZNG_e_OzIhXzXktNfSHta2TK-lrc&currency=USD"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

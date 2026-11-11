@@ -1,0 +1,26 @@
+{
+  "name": "unispace",
+  "productName": "UniSpace App",
+  "version": "1.0.0",
+  "description": "UniSpace - Smart Cross-Cloud Storage Manager with AI Semantic Search and PayPal Freemium Paywall",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node run.js",
+    "dev": "node run.js"
+  },
+  "keywords": [
+    "electron",
+    "rclone",
+    "cloud-storage",
+    "paypal",
+    "hackathon"
+  ],
+  "author": "Hackathon Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.1"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1"
+  }
+}
