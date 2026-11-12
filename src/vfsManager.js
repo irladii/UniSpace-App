@@ -29,24 +29,34 @@ function killStaleRclone(letter, remote) {
 // clear ghost mappings
 function clearGhostDriveMappings(letter) {
   try {
-    const cleanLetter = letter.replace(/[\\:]/g, '');
-    try {
-      execSync(`net use ${cleanLetter}: /delete /yes`, { stdio: 'ignore', windowsHide: true });
-    } catch (netErr) {
-      logVfs(`net use cleanup note for ${cleanLetter}: ${netErr.message}`);
+    if (letter) {
+      const cleanLetter = letter.replace(/[\\:]/g, '');
+      try {
+        execSync(`net use ${cleanLetter}: /delete /yes`, { stdio: 'ignore', windowsHide: true });
+      } catch (netErr) {
+        logVfs(`net use cleanup note for ${cleanLetter}: ${netErr.message}`);
+      }
     }
 
-    const keysToDelete = [
-      'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MountPoints2\\##server#Google Drive',
-      'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MountPoints2\\##server#Microsoft OneDrive',
-      `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MountPoints2\\${cleanLetter}`
-    ];
-    for (const key of keysToDelete) {
-      try {
-        execSync(`reg delete "${key}" /f`, { stdio: 'ignore', windowsHide: true });
-      } catch (regErr) {
-        logVfs(`registry delete note for ${key}: ${regErr.message}`);
+    try {
+      const queryOut = execSync('reg query "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MountPoints2"', {
+        encoding: 'utf8',
+        windowsHide: true,
+        stdio: ['ignore', 'pipe', 'ignore']
+      });
+      const lines = queryOut.split(/\r?\n/);
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.includes('##server#') || (letter && trimmed.endsWith(`\\${letter.replace(/[\\:]/g, '')}`))) {
+          try {
+            execSync(`reg delete "${trimmed}" /f`, { stdio: 'ignore', windowsHide: true });
+          } catch (delErr) {
+            logVfs(`Failed to delete ghost registry key ${trimmed}: ${delErr.message}`);
+          }
+        }
       }
+    } catch (queryErr) {
+      logVfs('MountPoints2 query note: ' + queryErr.message);
     }
   } catch (err) {
     logVfs('clearGhostDriveMappings note: ' + err.message);
@@ -310,6 +320,8 @@ function mountDrive(driveId) {
         '--vfs-write-back', '2s',
         '--vfs-case-insensitive',
         '--links',
+        '--exclude', '$RECYCLE.BIN/**',
+        '--exclude', 'System Volume Information/**',
         '--exclude', 'Personal Vault/**',
         '--exclude', 'Thumbs.db',
         '--exclude', 'desktop.ini',
@@ -317,14 +329,18 @@ function mountDrive(driveId) {
         '--attr-timeout', '8760h',
         '--poll-interval', '30s',
         '--no-checksum',
+        '--no-modtime',
+        '--vfs-fast-fingerprint',
         '--bind', '0.0.0.0',
-        '--vfs-read-chunk-size', '4M',
-        '--vfs-read-chunk-size-limit', '2G',
+        '--vfs-read-chunk-size', '16M',
+        '--vfs-read-chunk-size-limit', '256M',
+        '--vfs-read-chunk-streams', '0',
+        '--vfs-read-wait', '5ms',
         '--buffer-size', '16M',
         '--vfs-read-ahead', '32M',
         '--async-read=true',
-        '--vfs-cache-max-age', '1h',
-        '--vfs-cache-max-size', '10G',
+        '--vfs-cache-max-age', '24h',
+        '--vfs-cache-max-size', '15G',
         '--vfs-cache-poll-interval', '1m',
         '--timeout', '45s',
         '--contimeout', '20s',
@@ -334,9 +350,16 @@ function mountDrive(driveId) {
       ];
 
       if (driveId === 'gdrive') {
-        args.push('--drive-pacer-min-sleep', '20ms', '--drive-pacer-burst', '100');
+        args.push(
+          '--drive-chunk-size', '32M',
+          '--drive-pacer-min-sleep', '10ms',
+          '--drive-pacer-burst', '200'
+        );
       } else if (driveId === 'onedrive') {
-        args.push('--onedrive-list-chunk', '1000');
+        args.push(
+          '--onedrive-chunk-size', '32M',
+          '--onedrive-list-chunk', '1000'
+        );
       }
 
       const child = spawn(rcloneBin, args, {
@@ -485,6 +508,7 @@ function unmountDrive(driveId) {
     }
 
     killStaleRclone(drive.letter, drive.remote);
+    clearGhostDriveMappings(drive.letter);
 
     mountStatus[driveId] = false;
     notifyWindowsShell(drive.letter, 'remove');
@@ -536,6 +560,7 @@ function cleanupAll() {
     mountStatus[driveId] = false;
   }
   purgeVfsCache();
+  clearGhostDriveMappings();
 }
 
 // drive status list
