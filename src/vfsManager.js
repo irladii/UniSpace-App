@@ -317,7 +317,7 @@ function mountDrive(driveId) {
         '--volname', drive.name,
         `--cache-dir=${cacheDir}`,
         '--vfs-cache-mode', 'full',
-        '--vfs-write-back', '2s',
+        '--vfs-write-back', '5s',
         '--vfs-case-insensitive',
         '--links',
         '--exclude', '$RECYCLE.BIN/**',
@@ -332,13 +332,10 @@ function mountDrive(driveId) {
         '--no-modtime',
         '--vfs-fast-fingerprint',
         '--bind', '0.0.0.0',
-        '--vfs-read-chunk-size', '16M',
-        '--vfs-read-chunk-size-limit', '256M',
-        '--vfs-read-chunk-streams', '0',
-        '--vfs-read-wait', '5ms',
-        '--buffer-size', '16M',
-        '--vfs-read-ahead', '32M',
-        '--async-read=true',
+        '--vfs-read-chunk-size', '32M',
+        '--vfs-read-chunk-size-limit', 'off',
+        '--buffer-size', '64M',
+        '--vfs-read-ahead', '512M',
         '--vfs-cache-max-age', '24h',
         '--vfs-cache-max-size', '15G',
         '--vfs-cache-poll-interval', '1m',
@@ -351,13 +348,12 @@ function mountDrive(driveId) {
 
       if (driveId === 'gdrive') {
         args.push(
-          '--drive-chunk-size', '32M',
-          '--drive-pacer-min-sleep', '10ms',
-          '--drive-pacer-burst', '200'
+          '--drive-chunk-size', '64M',
+          '--drive-acknowledge-abuse'
         );
       } else if (driveId === 'onedrive') {
         args.push(
-          '--onedrive-chunk-size', '32M',
+          '--onedrive-chunk-size', '64M',
           '--onedrive-list-chunk', '1000'
         );
       }
@@ -559,8 +555,8 @@ function cleanupAll() {
     }
     mountStatus[driveId] = false;
   }
-  purgeVfsCache();
   clearGhostDriveMappings();
+  purgeVfsCache();
 }
 
 // drive status list
