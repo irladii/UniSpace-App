@@ -39,7 +39,7 @@ function getConfigPath() {
       return path.join(userData, 'unispace_license.json');
     }
   } catch (err) {
-    // app.getPath unavailable outside Electron lifecycle, using local fallback
+    // local config fallback
   }
 
   const fallbackDir = path.join(process.env.APPDATA || process.env.LOCALAPPDATA || __dirname, 'unispace');
@@ -84,7 +84,7 @@ function loadInitialState() {
         };
       }
     } catch (readErr) {
-      // Candidate file absent or unparseable, evaluating next candidate
+      // try next path
     }
   }
   return { ...DEFAULT_CONFIG };

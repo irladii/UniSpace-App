@@ -421,7 +421,7 @@ function mountDrive(driveId) {
           await fs.promises.access(rootPath);
           onMountConfirmed(`fs-access at ${checkAttempts * 250}ms`);
         } catch (pollErr) {
-          // Volume still attaching to Windows kernel I/O manager
+          // retry probe
         }
 
         if (checkAttempts >= maxAttempts && !resolved) {

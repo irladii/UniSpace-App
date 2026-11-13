@@ -304,10 +304,10 @@
       </div>
     </div>
 
-    <!-- success modal: thermal receipt printer -->
+    <!-- receipt modal -->
     <div id="license-success-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
       <div class="printer-container">
-        <!-- printer machine body -->
+        <!-- printer body -->
         <div class="printer-machine">
           <div class="printer-header">
             <div class="printer-status">
@@ -316,11 +316,11 @@
             </div>
             <button class="printer-close-btn" onclick="closeSuccessModal()" aria-label="Close modal">&times;</button>
           </div>
-          <!-- dark recessed paper ejection slot -->
+          <!-- printer slot -->
           <div class="printer-slot-slit"></div>
         </div>
 
-        <!-- paper output viewport (paper feeds out of slot) -->
+        <!-- paper viewport -->
         <div class="printer-paper-viewport">
           <article class="receipt-paper" id="receipt-paper">
             <div class="receipt-header">
@@ -381,7 +381,7 @@
           </article>
         </div>
 
-        <!-- action button below the printer -->
+        <!-- modal actions -->
         <div class="printer-actions">
           <button class="btn-primary btn-full-width" onclick="closeSuccessModalAndResume()">
             Start Unlimited Searching

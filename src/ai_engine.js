@@ -8,7 +8,7 @@ try {
     process.loadEnvFile(envPath);
   }
 } catch (err) {
-  // Environment file load note: fallback to process.env
+  // env fallback
 }
 
 // local heuristic search
